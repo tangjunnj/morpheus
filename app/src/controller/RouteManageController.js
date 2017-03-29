@@ -15,7 +15,7 @@ var RouteManageController = {
         data.layout = false;
         data.routes = routes;
         data.title = "查看已有线路";
-        res.render("../app/src/view/index",data);
+        res.render("index",data);
     },
 
     init : function(){
