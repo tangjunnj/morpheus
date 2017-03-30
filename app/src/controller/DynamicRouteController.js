@@ -3,9 +3,8 @@
  * author: tangjun
  */
 var fs = require("fs");
-var express = require('express');
+//var removeRoute = require('express-remove-route');
 
-var router = express.Router();
 // 动态路由
 var DynamicRouteController = {
     path : '../../config/route.json',
@@ -41,14 +40,13 @@ var DynamicRouteController = {
     clear:function(req,res){
         console.log("now clear");
         var routes = this.app._router.stack;
-        console.log(this.app._router);
-        debugger;
         routes.forEach(removeMiddlewares);
-        function removeMiddlewares(route, i, routes) {
-            if(route && route.path){
-                console.log(route.path+", index"+route.path.indexOf('/console'));
+        function removeMiddlewares(layer, i, routes) {
+            console.log(layer.route);
+            if(layer.route && layer.route.path){
+                console.log(layer.route.path+", index"+layer.route.path.indexOf('/console'));
             }
-            if(route.path && route.path.indexOf('/console') != 0){
+            if(layer.route && layer.route.path && layer.route.path.indexOf('/console') != 0){
                 routes.splice(i, 1);
             }
         }
