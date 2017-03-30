@@ -1,5 +1,7 @@
+<meta http-equiv="Access-Control-Allow-Origin" content="*" />
 <html>
 <head>
+
     <script language="javascript" src="http://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <script language="javascript" src="http://cdn.bootcss.com/jquery.form/4.2.0/jquery.form.js"></script>
 </head>
@@ -26,7 +28,7 @@
                 <input type="text" name = "url" value="<%=routes.routes[i].url%>" />
             </td>
             <td>
-                <textArea name = "resp" cols="200"  ><%=JSON.stringify(routes.routes[i].resp)%></textArea>
+                <textArea name = "resp" cols="200"  ><%=typeof(routes.routes[i].resp) == "object"?JSON.stringify(routes.routes[i].resp):routes.routes[i].resp%></textArea>
             </td>
             <td>
                 <input type="button" value="编码" id="encrypt" onclick="encryptResp(this)"/>

@@ -43,30 +43,56 @@ app.use(express.static('public'));
 //  res.status(err.status || 500);
 //  res.render('error');
 //});
+// Add headers
 
-app.get('/', function (req, res) {
-  routeManage.show(req,res);
-})
+app.use(function (req, res, next) {
 
-app.use('/console/refresh', function (req, res) {
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  // Request methods you wish to allow
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+  // Request headers you wish to allow
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  // Pass to next layer of middleware
+  next();
+});
+
+app.route('/')
+    .all(function (req, res) {
+      routeManage.show(req,res);
+    });
+
+app.route('/console/refresh')
+.all( function (req, res) {
   dynaRoute.refresh(req,res);
 })
 
-app.get("/console/show",function(req,res) {
+app.route("/console/show")
+.all(function(req,res) {
   routeManage.show(req,res);
 });
 
-app.use("/console/updateRoute",function(req,res) {
-  routeManage.updateRoute(req,res);
-});
-
-app.use("/console/addRoute",function(req,res) {
+app.route("/console/addRoute")
+    .all(function(req,res) {
   routeManage.addRoute(req,res);
 });
 
-app.get("/console/delRoute",function(req,res) {
+app.route("/console/delRoute")
+    .all(function(req,res) {
   routeManage.delRoute(req,res);
 });
+
+app.route("/console/updateRoute")
+    .all(function(req,res) {
+      routeManage.updateRoute(req,res);
+    });
 
 dynaRoute.init(app,'./app/config/route.json')
 

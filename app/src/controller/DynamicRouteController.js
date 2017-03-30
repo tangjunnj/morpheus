@@ -3,6 +3,9 @@
  * author: tangjun
  */
 var fs = require("fs");
+var express = require('express');
+
+var router = express.Router();
 // 动态路由
 var DynamicRouteController = {
     path : '../../config/route.json',
@@ -15,10 +18,12 @@ var DynamicRouteController = {
             var routes = config.routes;
 
             routes.forEach(function(item){
-                console.log(item);
-                that.app.use(item.url,function(req,res){
-                    res.json(item.resp);
-                })
+                console.log("parseRouteConfig:"+JSON.stringify(item));
+                that.app.route(item.url)
+                    .all(function(req,res,next){
+                        res.send(item.resp);
+                        next();
+                    })
             })
         }
     },
@@ -36,6 +41,8 @@ var DynamicRouteController = {
     clear:function(req,res){
         console.log("now clear");
         var routes = this.app._router.stack;
+        console.log(this.app._router);
+        debugger;
         routes.forEach(removeMiddlewares);
         function removeMiddlewares(route, i, routes) {
             if(route && route.path){

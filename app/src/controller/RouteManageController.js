@@ -2,7 +2,7 @@
  * 编辑route.json
  * author: tangjun
  */
-var fs = require("fs");
+let fs = require("fs");
 // 动态路由
 var RouteManageController = {
     path : './app/config/route.json',
@@ -12,7 +12,7 @@ var RouteManageController = {
         let routes = {};
         try {
             routes = JSON.parse(fs.readFileSync(this.path), 'utf8');
-            console.log(routes);
+            console.log("show routes"+JSON.stringify(routes));
         } catch (e) {
             console.log(e)
         }
@@ -20,6 +20,9 @@ var RouteManageController = {
         data.layout = false;
         data.routes = routes;
         data.title = "查看已有线路";
+        data.helper={
+            isJSON:this.isJSON
+        }
         res.render("index",data);
     },
 
@@ -61,6 +64,7 @@ var RouteManageController = {
                         result.message = err;
                     }
                 })
+
                 res.json(result);
             }
         } catch (e) {
@@ -149,7 +153,7 @@ var RouteManageController = {
                 return false;
             }
         }
-        console.log('It is not a string!')
+        console.log(str+'It is not a string!')
     }
 }
 
