@@ -4,16 +4,24 @@
     <script language="javascript" src="http://cdn.bootcss.com/jquery.form/4.2.0/jquery.form.js"></script>
 </head>
 <body>
-    <table>
+    <div>
+        <img src="../../../images/title.png"  alt="" />
+    </div>
+
+    <table border="1px">
         <tr>
-            <td>url</td>
-            <td>resp</td>
-            <td>operation</td>
+            <td ALIGN="CENTER">ID</td>
+            <td ALIGN="CENTER">URL</td>
+            <td ALIGN="CENTER">RESPONSE</td>
+            <td ALIGN="CENTER">OPRATION</td>
         </tr>
         <%if(routes.routes){
 
         for (let i = 0;i<routes.routes.length;i++){%>
         <tr >
+            <td>
+                <span name = "id" ><%= routes.routes[i].id%></span>
+            </td>
             <td>
                 <input type="text" name = "url" value="<%=routes.routes[i].url%>" />
             </td>
@@ -21,8 +29,10 @@
                 <textArea name = "resp" cols="200"  ><%=JSON.stringify(routes.routes[i].resp)%></textArea>
             </td>
             <td>
+                <input type="button" value="编码" id="encrypt" onclick="encryptResp(this)"/>
+                <input type="button" value="解码" id="encrypt" onclick="decryptResp(this)"/>
                 <input type="button" value="删除" onclick="location='/console/delRoute?id=<%=routes.routes[i].id%>'"/>
-                <input type="button" value="修改" onclick="location='/console/update?id=<%=routes.routes[i].id%>'"/>
+                <input type="button" value="修改" id="updateBtn" onclick="updateRoute(this)"/>
             </td>
         </tr>
         <%}%>
@@ -30,13 +40,18 @@
         <%}%>
         <tr>
             <td>
-                <input id="addUrl" type="text" name = "addUrl" value="" />
+
             </td>
             <td>
-                <textArea id="addResp" name = "addResp" cols="200"  ></textArea>
+                <input id="url" type="text" name = "url" value="" />
             </td>
             <td>
-                <input type="button" value="新增" onclick="addRoute()"/>
+                <textArea id="resp" name = "resp" cols="200"  ></textArea>
+            </td>
+            <td>
+                <input type="button" value="编码" id="encrypt" onclick="encryptResp(this)"/>
+                <input type="button" value="解码" id="encrypt" onclick="decryptResp(this)"/>
+                <input type="button" value="新增" onclick="addRoute(this)"/>
             </td>
         </tr>
     </table>
@@ -44,11 +59,24 @@
 
 
 <script text="javascrpt">
-    function addRoute() {
-        var addUrl = $('#addUrl').val();
-        console.log(addUrl)
-        var addResp = $('#addResp').val();
-        console.log(addResp)
+
+    //将响应内容转换为加密格式
+    function decryptResp(obj){
+        var resp = $(obj).parents('tr').find('td textArea[name="resp"]').val();
+        resp = window.atob(resp);
+        $(obj).parents('tr').find('td textArea[name="resp"]').val(resp);
+    }
+
+    //将响应内容转换为加密格式
+    function encryptResp(obj){
+        var resp = $(obj).parents('tr').find('td textArea[name="resp"]').val();
+        resp = window.btoa(resp);
+        $(obj).parents('tr').find('td textArea[name="resp"]').val(resp);
+    }
+
+    function addRoute(obj) {
+        var addUrl = $(obj).parents('tr').find('td input[name="url"]').val();;
+        var addResp = $(obj).parents('tr').find('td textArea[name="resp"]').val();
         $.ajax({
             url:"/console/addRoute",
             async:false,
@@ -68,7 +96,32 @@
         });
     }
 
+    function updateRoute(obj){
 
+        if(obj){
+            var id = $(obj).parents('tr').find('td span[name="id"]').text();
+            var url = $(obj).parents('tr').find('td input[name="url"]').val();
+            var resp = $(obj).parents('tr').find('td textArea[name="resp"]').val();
+            $.ajax({
+                url:"/console/updateRoute",
+                async:false,
+                data:{
+                    "id":id,
+                    "url":url,
+                    "resp":resp
+                },
+                type:'POST',
+                success:function(res){
+                    console.log(res)
+                    if (res.status == 1) {
+                        window.location.href="/console/show";
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+    }
 </script>
 
 </body>

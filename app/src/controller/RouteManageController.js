@@ -9,8 +9,13 @@ var RouteManageController = {
     app : null,
 
     show : function(req, res){
-        let routes = JSON.parse(fs.readFileSync(this.path), 'utf8');
-        console.log(routes);
+        let routes = {};
+        try {
+            routes = JSON.parse(fs.readFileSync(this.path), 'utf8');
+            console.log(routes);
+        } catch (e) {
+            console.log(e)
+        }
         let data = {};
         data.layout = false;
         data.routes = routes;
@@ -27,57 +32,88 @@ var RouteManageController = {
         this.path = path?path:this.path;
     },
 
-    //TODO
     updateRoute : function(req,res){
-        let id = req.query.id;
+        let result = {};
+        let that = this;
+        try {
+            let id = req.body.id;
+            let url = req.body.url;
+            let resp = req.body.resp;
 
-        console.log("id"+id);
-        let routes = JSON.parse(fs.readFileSync(this.path), 'utf8');
-        if(routes.routes){
-            routes.routes.forEach(function(item,i,routes){
-                if(item.id == id){
-                    let route = routes.get(i);
-
-                }
-            })
-            fs.writeFile(this.path,JSON.stringify(routes),function(err){
-                if (err) {
-                    console.error(err);
-                    process.exit(1);
-                }
-                res.redirect('/console/show')
-            })
+            console.log("updateRoute id:" + id + ",url:" + url + ",resp:" + resp);
+            let config = JSON.parse(fs.readFileSync(this.path), 'utf8');
+            result.status = 1;
+            if (config.routes) {
+                config.routes.forEach(function (item) {
+                    if (item.id == id) {
+                        //replace route
+                        item.url = url;
+                        item.resp = that.isJSON(resp)?JSON.parse(resp):resp;
+                    }
+                    if(item.url == url && item.id != id){
+                        throw  new Error("已有该URL的配置");
+                    }
+                })
+                fs.writeFile(this.path, JSON.stringify(config), function (err) {
+                    if (err) {
+                        console.error(err);
+                        result.status = 0;
+                        result.message = err;
+                    }
+                })
+                res.json(result);
+            }
+        } catch (e) {
+            console.log(e)
+            result.status = 0;
+            result.message = e.message;
+            res.json(result);
         }
     },
 
     addRoute : function(req,res){
-        console.log(req)
-        let url = req.body.addUrl;
-        let resp = req.body.addResp;
-        if(url == '' || resp ==''){
-            res.redirect('/console/show')
-        }
-        let routes = JSON.parse(fs.readFileSync(this.path), 'utf8');
-        routes.routes.push();
-        if(routes.routes){
-            let maxId = 0;
-            routes.routes.forEach(function(item,i,routes){
-                if(item.id >= maxId){
-                    maxId = item.id+1;
+        let result = {};
+        let that = this;
+        try {
+            let url = req.body.addUrl;
+            let resp = req.body.addResp;
+            if (url == '' || resp == '') {
+                res.redirect('/console/show')
+            }
+            console.log("addRoute " + ",url:" + url + ",resp:" + resp);
+            let config = JSON.parse(fs.readFileSync(this.path), 'utf8');
 
-                }
-            })
-            routes.routes.push({"id":maxId,"url":url,"resp":resp});
-
-            let result = {};
             result.status = 1;
-            fs.writeFile(this.path,routes,function(err){
+
+            if(config.routes == null ){
+                config.routes = new Array();
+            }
+
+            if (config.routes) {
+                let maxId = 0;
+                config.routes.forEach(function (item) {
+                    if (item.id >= maxId) {
+                        maxId = item.id + 1;
+                    }
+                    if(item.url == url ){
+                        throw  new Error("已有该URL的配置");
+                    }
+                })
+                config.routes.push({"id":maxId,"url":url,"resp":that.isJSON(resp)?JSON.parse(resp):resp});
+                console.log("now config:"+JSON.stringify(config))
+            }
+            fs.writeFile(this.path, JSON.stringify(config), function (err) {
                 if (err) {
                     console.error(err);
                     result.status = 0;
                     result.message = err;
                 }
             })
+            res.json(result);
+        } catch (e) {
+            console.log(e)
+            result.status = 0;
+            result.message = e.message;
             res.json(result);
         }
     },
@@ -101,6 +137,19 @@ var RouteManageController = {
                 res.redirect('/console/show')
             })
         }
+    },
+
+    isJSON : function (str) {
+        if (typeof str == 'string') {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch(e) {
+                console.log(e);
+                return false;
+            }
+        }
+        console.log('It is not a string!')
     }
 }
 

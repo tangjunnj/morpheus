@@ -20,7 +20,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
+
 //
 //app.use('/', index);
 //app.use('/users', users);
@@ -44,7 +45,7 @@ app.use(cookieParser());
 //});
 
 app.get('/', function (req, res) {
-  res.send('Hello World!')
+  routeManage.show(req,res);
 })
 
 app.use('/console/refresh', function (req, res) {
@@ -55,11 +56,11 @@ app.get("/console/show",function(req,res) {
   routeManage.show(req,res);
 });
 
-app.get("/console/updateRoute",function(req,res) {
+app.use("/console/updateRoute",function(req,res) {
   routeManage.updateRoute(req,res);
 });
 
-app.post("/console/addRoute",function(req,res) {
+app.use("/console/addRoute",function(req,res) {
   routeManage.addRoute(req,res);
 });
 

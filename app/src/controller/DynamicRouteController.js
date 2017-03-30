@@ -17,7 +17,7 @@ var DynamicRouteController = {
             routes.forEach(function(item){
                 console.log(item);
                 that.app.use(item.url,function(req,res){
-                    res.json(JSON.parse(item.resp));
+                    res.json(item.resp);
                 })
             })
         }
